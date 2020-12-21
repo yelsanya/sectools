@@ -1,0 +1,27 @@
+#!/bin/bash
+
+url=$1
+
+if [ ! -d "$url" ]; then
+	mkdir $url
+fi
+
+if [ ! -d "$url/recon" ]; then
+	mkdir $url/recon
+fi
+
+echo "[+] Getting subdomains via assetfinder..."
+assetfinder $url >> $url/recon/related.txt
+cat $url/recon/related.txt | grep $url >> $url/recon/subd.txt
+
+#echo "[+] Getting subdomains via amass..."]
+#amass enum -d $url >> $url/recon/amass.txt
+#cat $url/recon/amass.txt | grep "$url$" >> $url/recon/subd.txt
+
+sort -u $url/recon/subd.txt -o $url/recon/subd.txt
+
+echo "[+] Probing alive domains..."
+cat $url/recon/subd.txt | httprobe >> $url/temp
+cat $url/temp | grep https | cut -d / -f 3 | cut -d : -f 1 >> $url/recon/lives.txt
+cat $url/temp | grep http: | cut -d / -f 3 | cut -d : -f 1 >> $url/recon/live.txt
+rm $url/temp

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+ip=$1
+
+echo scanning all ports
+
+python3 -c "print('-'*50)"
+
+nmap -T4 -p- $ip > nmap.txt
+
+ports=$(cat nmap.txt | grep open | cut -d / -f 1 | tr '\n' ',')
+
+echo running scripts against open ports
+
+python3 -c "print('-'*50)"
+
+nmap -A -T4 -p $ports $ip | tee anmap.txt
