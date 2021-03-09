@@ -1,0 +1,30 @@
+#!/bin/bash
+
+dom=$1
+
+if [ ! -d dns ]; then
+	mkdir dns
+fi
+
+for i in mx a aaaa ns hinfo mb mg mr mx ns ptr txt cname
+do
+	dig +nocmd $dom $i +multiline +noall +answer >> dns/$dom
+done
+
+ip=$(dig +nocmd $dom a +multiline +noall +answer | awk -F 'IN A' '{print $2}' | tr -d ' \t')
+
+if [ ! -f iplist.txt ]; then
+	touch iplist.txt
+fi
+
+if grep -Fxq $ip iplist.txt
+then
+	sed -i "$(( $(grep -n $ip iplist.txt | cut -d ':' -f 1) + 1 ))iTAB$dom" iplist.txt
+else
+	echo $ip >> iplist.txt
+	echo -e "\t$dom" >> iplist.txt
+fi
+
+sort -u dns/$dom -o dns/$dom
+
+sed -i "s/TAB/\\t/g" iplist.txt

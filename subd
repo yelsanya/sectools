@@ -25,3 +25,6 @@ cat $url/recon/subd.txt | httprobe >> $url/temp
 cat $url/temp | grep https | cut -d / -f 3 | cut -d : -f 1 >> $url/recon/lives.txt
 cat $url/temp | grep http: | cut -d / -f 3 | cut -d : -f 1 >> $url/recon/live.txt
 rm $url/temp
+
+cat $url/recon/lives.txt $url/recon/live.txt > $url/recon/all.txt
+sort -u all.txt -o all.txt
